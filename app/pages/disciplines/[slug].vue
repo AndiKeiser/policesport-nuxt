@@ -1,0 +1,136 @@
+<script setup lang="ts">
+import type { Event, DirectusUser } from '#shared/types/schema';
+
+const route = useRoute();
+const { enabled, state } = useLivePreview();
+const { isVisualEditingEnabled, apply, setAttr } = useVisualEditing();
+const eventUrl = useRequestURL();
+
+const slug = route.params.slug as string;
+
+const wrapperRef = ref<HTMLElement | null>(null);
+
+const {
+	public: { directusUrl },
+} = useRuntimeConfig();
+
+const { data, error, refresh } = await useFetch<{
+	event: Event;
+	relatedEvents: Event[];
+}>(() => `/api/events/${slug}`, {
+	key: `events-${slug}`,
+	query: {
+		preview: enabled.value ? true : undefined,
+		token: enabled.value ? state.token : undefined,
+	},
+});
+
+if (!data.value || error.value) {
+	throw createError({ statusCode: 404, statusMessage: 'Post not found', fatal: true });
+}
+
+const event = computed(() => data.value?.event);
+const relatedEvents = computed(() => data.value?.relatedEvents);
+// const author = computed(() => event.value?.author as Partial<DirectusUser>);
+
+onMounted(() => {
+	if (!isVisualEditingEnabled.value) return;
+	apply({
+		directusUrl,
+		onSaved: () => refresh(),
+	});
+});
+
+useSeoMeta({
+	title: event.value?.seo?.title,
+	description: event.value?.seo?.meta_description,
+	ogTitle: event.value?.seo?.title,
+	ogDescription: event.value?.seo?.meta_description,
+	ogUrl: eventUrl.toString(),
+});
+</script>
+<template>
+	<div v-if="event" ref="wrapperRef">
+		<Container class="py-12">
+			<div v-if="event.image" class="mb-8 w-full">
+				<div
+					class="relative w-full h-[400px] overflow-hidden rounded-lg"
+					:data-directus="
+						setAttr({ collection: 'events', item: event.id, fields: ['image', 'meta_header_image'], mode: 'modal' })
+					"
+				>
+					<DirectusImage
+						:uuid="event.image as string"
+						class="object-cover w-full h-full"
+						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
+						fill
+					/>
+				</div>
+			</div>
+
+			<!-- <Headline
+				:headline="event.title"
+				as="h2"
+				class="!text-accent mb-4"
+				:data-directus="setAttr({ collection: 'posts', item: event.id, fields: ['title', 'slug'], mode: 'popover' })"
+			/> -->
+
+			<Separator class="h-[1px] bg-gray-300 my-8" />
+
+			<div class="grid grid-cols-1 lg:grid-cols-[minmax(0,_2fr)_400px] gap-12">
+				<!-- <main class="text-left">
+					<Text
+						:content="event.content || ''"
+						:data-directus="
+							setAttr({
+								collection: 'posts',
+								item: event.id,
+								fields: ['content', 'meta_header_content'],
+								mode: 'drawer',
+							})
+						"
+					/>
+				</main> -->
+
+				<aside class="space-y-6 p-6 rounded-lg max-w-[496px] h-fit bg-background-muted">
+<!-- 			
+					<p
+						v-if="event.description"
+						:data-directus="setAttr({ collection: 'posts', item: event.id, fields: 'description', mode: 'popover' })"
+					>
+						{{ event.description }}
+					</p> -->
+
+					<!-- <div class="flex justify-start">
+						<ShareDialog :post-url="postUrl.toString()" :post-title="event.title" />
+					</div> -->
+					
+					<div>
+						<Separator class="h-[1px] bg-gray-300 my-4" />
+						<h3 class="font-bold mb-4">Related Events</h3>
+						<div class="space-y-4">
+							<!-- <NuxtLink
+								v-for="relatedPost in relatedPosts"
+								:key="relatedPost.id"
+								:to="`/blog/${relatedPost.slug}`"
+								class="flex items-center space-x-4 hover:text-accent group"
+							>
+								<div v-if="relatedPost.image" class="relative shrink-0 w-[150px] h-[100px] overflow-hidden rounded-lg">
+									<DirectusImage
+										:uuid="relatedPost.image as string"
+										:alt="relatedPost.title || 'related post image'"
+										class="object-cover transition-transform duration-300 group-hover:scale-110"
+										fill
+										sizes="(max-width: 768px) 100px, (max-width: 1024px) 150px, 150px"
+									/>
+								</div>
+								<span class="font-heading">{{ relatedPost.title }}</span>
+							</NuxtLink> -->
+						</div>
+					</div>
+				</aside>
+			</div>
+		</Container>
+	</div>
+	<div v-else class="text-center text-xl mt-[20%]">404 - Event Not Found</div>
+</template>
