@@ -14,13 +14,6 @@
 	--input-color: color-mix(in srgb, var(--background-color), var(--foreground-color) 30%);
 }
 
-.dark {
-	--background-color: var(--background-color-muted);
-	--foreground-color: #ffffff;
-	--background-color-muted: color-mix(in srgb, var(--background-color), var(--foreground-color) 10%);
-	--background-variant-color: #172940;
-}
-
 @layer base {
 	html {
 		@apply bg-[var(--background-color)] text-[var(--foreground-color)];
@@ -38,13 +31,11 @@
 	} */
 
 	[data-background='dark'] {
-		@apply bg-gray dark:bg-[var(--background-variant-color)];
+		@apply bg-gray;
 	}
 
-	:root:not(.dark) [data-background='dark'] {
-		.inline-flex[class*='bg-gray'] {
-			@apply bg-[#172940] text-white hover:bg-accent;
-		}
+	[data-background='dark'] .inline-flex[class*='bg-gray'] {
+		@apply bg-[#172940] text-white hover:bg-accent;
 	}
 }
 

@@ -16,7 +16,9 @@ export default defineEventHandler(async (event) => {
 				token as string,
 				readItems('posts', {
 					filter: {
-						slug: { _eq: slug },
+						translations: {
+							slug: { _eq: slug },
+						},
 					},
 					limit: 1,
 					fields: [
@@ -43,7 +45,11 @@ export default defineEventHandler(async (event) => {
 			withToken(
 				token as string,
 				readItems('posts', {
-					filter: { slug: { _neq: slug } },
+					filter: {
+						translations: {
+							slug: { _neq: slug }
+						}
+					},
 					fields: ['id', 'title', 'translations.*', 'image', 'slug'],
 					limit: 2,
 				}),

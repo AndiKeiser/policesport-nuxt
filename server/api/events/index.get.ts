@@ -3,7 +3,10 @@ import { z } from 'zod';
 const querySchema = z.object({
 	limit: z.coerce.number().min(1).max(100).default(6),
 	page: z.coerce.number().min(1).default(1),
+	slug: z.string().optional(),
 });
+
+
 
 export default defineEventHandler(async (event) => {
 	const query = await getValidatedQuery(event, querySchema.safeParse);
@@ -12,26 +15,43 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 400, message: 'Invalid query parameters' });
 	}
 
-	const { limit, page } = query.data;
+	const { limit, page, slug } = query.data;
+
 
 	try {
+		// Get current date in ISO format
+		const now = new Date().toISOString();
+
+		// Build filter - hide events where end_date is in the past
+		const filter: any = {
+			status: { _eq: 'published' },
+			end_date: { _gte: now } as any,
+		};
+
+		// If slug is provided, filter by translation slug
+		if (slug) {
+			filter.translations = {
+				slug: { _eq: slug }
+			};
+		}
+
 		const eventsPromise = directusServer.request(
 			readItems('events', {
 				limit,
 				page,
-				sort: ['-start_date'],
+				sort: ['start_date'],
 				fields: [
 					'id',
 					'start_date',
 					'end_date',
 					{
-						translations: ['id', 'languages_code', 'title'],
+						translations: ['id', 'languages_code', 'title', 'slug'],
 					},
 					{
 						image: ['id', 'focal_point_x', 'focal_point_y', 'width', 'height'],
 					},
 				],
-				filter: { status: { _eq: 'published' } },
+				filter,
 			}),
 		);
 
@@ -39,7 +59,10 @@ export default defineEventHandler(async (event) => {
 			aggregate('events', {
 				aggregate: { count: '*' },
 				query: {
-					filter: { status: { _eq: 'published' } },
+					filter: {
+						status: { _eq: 'published' },
+						end_date: { _gte: now } as any,
+					},
 				},
 			}),
 		);

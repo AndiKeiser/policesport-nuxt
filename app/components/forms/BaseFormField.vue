@@ -10,6 +10,7 @@ import CheckboxGroupField from './fields/CheckboxGroupField.vue';
 import RadioGroupField from './fields/RadioGroupField.vue';
 import SelectField from './fields/SelectField.vue';
 import FileUploadField from './fields/FileUploadField.vue';
+import DisciplineField from './fields/DisciplineField.vue';
 
 const props = defineProps<{ field: FormField }>();
 const { value, errorMessage } = useField(props.field.name ?? '');
@@ -18,6 +19,7 @@ const componentMap: Record<string, Component> = {
 	textarea: Textarea,
 	checkbox: CheckboxField,
 	checkbox_group: CheckboxGroupField,
+	discipline: DisciplineField,
 	radio: RadioGroupField,
 	select: SelectField,
 	file: FileUploadField,

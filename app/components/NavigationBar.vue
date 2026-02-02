@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Menu, ChevronDown } from 'lucide-vue-next';
 import SearchModal from '~/components/base/SearchModel.vue';
+import type { Discipline } from '#shared/types/schema';
+import { useDirectusTranslation } from '~/composables/useDirectusTranslation';
 
 interface NavigationItem {
 	id: string;
@@ -8,6 +10,7 @@ interface NavigationItem {
 	url?: string;
 	page?: { permalink: string };
 	children?: NavigationItem[];
+	show_disciplines?: boolean;
 }
 
 // Using template ref to expose the navigation bar to the layout for visual editing
@@ -26,11 +29,13 @@ interface Globals {
 const props = defineProps<{
 	navigation: Navigation;
 	globals: Globals;
+	disciplines: Discipline[];
 }>();
 
 const menuOpen = ref(false);
 const runtimeConfig = useRuntimeConfig();
 const { setAttr } = useVisualEditing();
+const { getTranslation } = useDirectusTranslation();
 
 const lightLogoUrl = computed(() =>
 	props.globals?.logo ? `${runtimeConfig.public.directusUrl}/assets/${props.globals.logo}` : '/images/logo.svg',
@@ -70,14 +75,14 @@ const handleLinkClick = () => {
 				>
 					<NavigationMenuList class="flex gap-6 ">
 						<NavigationMenuItem v-for="section in props.navigation.items" :key="section.id">
-							<template v-if="section.children?.length">
+							<template v-if="section.children?.length || section.show_disciplines">
 								<NavigationMenuTrigger
 									class="font-heading !text-nav hover:bg-background"
 								>
 									{{ section.title }}
 								</NavigationMenuTrigger>
-								<NavigationMenuContent class="min-w-[200px] rounded-md bg-background p-4 ">
-									<ul class="min-h-[100px] flex flex-col gap-2">
+								<NavigationMenuContent class="min-w-[200px] rounded-md  bg-background p-4">
+									<ul class="min-h-[100px] h-full flex flex-col gap-2 relative">
 										<li v-for="child in section.children" :key="child.id">
 											<NavigationMenuLink as-child>
 												<NuxtLink :to="child.page?.permalink || child.url || '#'" class="font-heading text-nav">
@@ -85,6 +90,22 @@ const handleLinkClick = () => {
 												</NuxtLink>
 											</NavigationMenuLink>
 										</li>
+										<template v-if="section.show_disciplines">
+											<li>
+												<NavigationMenuLink as-child>
+													<NuxtLink :to="`/disziplinen`" class="font-heading text-nav">
+														{{ 'Alle Disziplinen' }}
+													</NuxtLink>
+												</NavigationMenuLink>
+											</li>
+											<li v-for="discipline in props.disciplines" :key="discipline.id">
+												<NavigationMenuLink as-child>
+													<NuxtLink :to="`/disciplines/${getTranslation(discipline as any, 'slug')}`" class="font-heading text-nav">
+														{{ getTranslation(discipline as any, 'title') }}
+													</NuxtLink>
+												</NavigationMenuLink>
+											</li>
+										</template>
 									</ul>
 								</NavigationMenuContent>
 							</template>
@@ -98,7 +119,9 @@ const handleLinkClick = () => {
 					</NavigationMenuList>
 				</NavigationMenu>
 
-					<!-- Menu Mobile -->
+				<LanguageSwitcher />
+
+				<!-- Menu Mobile -->
 				<div class="flex md:hidden">
 					<DropdownMenu v-model:open="menuOpen">
 						<DropdownMenuTrigger as-child>
@@ -118,7 +141,7 @@ const handleLinkClick = () => {
 						>
 							<div class="flex flex-col gap-4">
 								<div v-for="section in props.navigation.items" :key="section.id">
-									<Collapsible v-if="section.children?.length">
+									<Collapsible v-if="section.children?.length || section.show_disciplines">
 										<CollapsibleTrigger
 											class="font-heading text-nav hover:text-accent w-full text-left flex items-center focus:outline-none"
 										>
@@ -135,6 +158,17 @@ const handleLinkClick = () => {
 											>
 												{{ child.title }}
 											</NuxtLink>
+											<template v-if="section.show_disciplines">
+												<NuxtLink
+													v-for="discipline in props.disciplines"
+													:key="discipline.id"
+													:to="`/disciplines/${getTranslation(discipline as any, 'slug')}`"
+													class="font-heading text-nav"
+													@click="handleLinkClick"
+												>
+													{{ getTranslation(discipline as any, 'title') }}
+												</NuxtLink>
+											</template>
 										</CollapsibleContent>
 									</Collapsible>
 
@@ -151,9 +185,6 @@ const handleLinkClick = () => {
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</div>
-
-				<LanguageSwitcher />
-				<!-- <ThemeToggle /> -->
 			</nav>
 		</Container>
 	</header>

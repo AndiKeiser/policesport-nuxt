@@ -6,6 +6,7 @@ interface MembersProps {
 		id?: string;
 		tagline?: string;
 		headline?: string;
+		members_list?: Member[],
 		members: Member[];
 	};
 }
@@ -17,10 +18,28 @@ const props = defineProps<MembersProps>();
 const { setAttr } = useVisualEditing();
 
 const getFullName = (member: Member) => {
-	console.log(member);
 	const parts = [member.firstname, member.lastname].filter(Boolean);
 	return parts.join(' ') || 'Member';
 };
+
+const getDisciplines = (member: any) => {
+	if (!member.disciplines || !Array.isArray(member.disciplines)) return '';
+	return member.disciplines
+		.map((d: any) => d.disciplines_id?.title)
+		.filter(Boolean)
+		.join(', ');
+};
+
+// Use members_list if it exists, otherwise fall back to members
+const displayMembers = computed(() => {
+	if (props.data.members_list && props.data.members_list.length > 0) {
+		// members_list is a junction table, extract the actual member data from members_id
+		return props.data.members_list
+			.map((item: any) => item.members_id)
+			.filter((member: any) => member && typeof member === 'object');
+	}
+	return props.data.members;
+});
 </script>
 
 <template>
@@ -44,7 +63,7 @@ const getFullName = (member: Member) => {
 		/>
 
 		<div
-			class="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+			class="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6"
 			:data-directus="
 				setAttr({
 					collection: 'block_members',
@@ -54,13 +73,13 @@ const getFullName = (member: Member) => {
 				})
 			"
 		>
-			<template v-if="data.members?.length">
+			<template v-if="displayMembers?.length">
 				<div
-					v-for="member in data.members"
+					v-for="member in displayMembers"
 					:key="member.id"
 					class="group flex flex-col items-center text-center"
 				>
-					<div class="relative w-full aspect-square overflow-hidden rounded-lg mb-4">
+					<div class="relative w-full aspect-[4/3] overflow-hidden rounded-lg mb-4">
 						<DirectusImage
 							v-if="member.portrait"
 							:uuid="typeof member.portrait === 'string' ? member.portrait : member.portrait?.id"
@@ -80,13 +99,17 @@ const getFullName = (member: Member) => {
 						<h3 class="text-lg font-heading font-semibold">
 							{{ getFullName(member) }}
 						</h3>
+						
 						<p v-if="member.title" class="text-sm text-muted-foreground">
 							{{ member.title }}
+						</p>
+						<p v-if="getDisciplines(member)" class="text-sm text-muted-foreground">
+							{{ getDisciplines(member) }}
 						</p>
 						<p v-if="member.police_station" class="text-sm text-muted-foreground">
 							{{ member.police_station }}
 						</p>
-						
+
 						<!-- <p v-if="member.email" class="text-sm text-accent hover:underline">
 							<a :href="`mailto:${member.email}`">{{ member.email }}</a>
 						</p> -->

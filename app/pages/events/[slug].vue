@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import type { Event, DirectusUser } from '#shared/types/schema';
+import { useDirectusTranslation } from '~/composables/useDirectusTranslation';
 
 const route = useRoute();
 const { enabled, state } = useLivePreview();
 const { isVisualEditingEnabled, apply, setAttr } = useVisualEditing();
 const eventUrl = useRequestURL();
+const { getTranslation } = useDirectusTranslation();
 
 const slug = route.params.slug as string;
-
 const wrapperRef = ref<HTMLElement | null>(null);
 
 const {
@@ -41,10 +42,29 @@ onMounted(() => {
 	});
 });
 
+const formatStartDate = (dateString: string | null | undefined) => {
+	if (!dateString) return '';
+	const date = new Date(dateString);
+	return new Intl.DateTimeFormat('de-DE', {
+		day: 'numeric',
+	}).format(date);
+};
+
+const formatDate = (dateString: string | null | undefined) => {
+	if (!dateString) return '';
+	const date = new Date(dateString);
+	return new Intl.DateTimeFormat('de-DE', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+	}).format(date);
+};
+
+
 useSeoMeta({
-	title: event.value?.seo?.title,
+	title: event.value?.seo?.title || getTranslation(event.value as any, 'title'),
 	description: event.value?.seo?.meta_description,
-	ogTitle: event.value?.seo?.title,
+	ogTitle: event.value?.seo?.title || getTranslation(event.value as any, 'title'),
 	ogDescription: event.value?.seo?.meta_description,
 	ogUrl: eventUrl.toString(),
 });
@@ -60,7 +80,9 @@ useSeoMeta({
 					"
 				>
 					<DirectusImage
-						:uuid="event.image as string"
+						:uuid="typeof event.image === 'string' ? event.image : event.image?.id"
+						:file="typeof event.image === 'object' ? event.image : undefined"
+						:alt="getTranslation(event as any, 'title')"
 						class="object-cover w-full h-full"
 						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
 						fill
@@ -68,29 +90,34 @@ useSeoMeta({
 				</div>
 			</div>
 
-			<!-- <Headline
-				:headline="event.title"
+			<Headline
+				:headline="getTranslation(event as any, 'title')"
 				as="h2"
 				class="!text-accent mb-4"
-				:data-directus="setAttr({ collection: 'posts', item: event.id, fields: ['title', 'slug'], mode: 'popover' })"
-			/> -->
+				:data-directus="setAttr({ collection: 'events', item: event.id, fields: ['title', 'slug'], mode: 'popover' })"
+			/>
 
 			<Separator class="h-[1px] bg-gray-300 my-8" />
 
 			<div class="grid grid-cols-1 lg:grid-cols-[minmax(0,_2fr)_400px] gap-12">
-				<!-- <main class="text-left">
+				<main class="text-left">
+					<div class="text-muted-foreground mb-4">
+						<span>{{ formatStartDate(event.start_date) }}. - {{ formatDate(event.end_date) }}</span>
+						<span v-if="event.location"> / {{ event.location }}</span>
+					</div>
+
 					<Text
-						:content="event.content || ''"
+						:content="getTranslation(event as any, 'content') || ''"
 						:data-directus="
 							setAttr({
-								collection: 'posts',
+								collection: 'events',
 								item: event.id,
-								fields: ['content', 'meta_header_content'],
+								fields: ['content'],
 								mode: 'drawer',
 							})
 						"
 					/>
-				</main> -->
+				</main>
 
 				<aside class="space-y-6 p-6 rounded-lg max-w-[496px] h-fit bg-background-muted">
 <!-- 			

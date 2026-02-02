@@ -50,6 +50,9 @@ const initialValues = computed(() => {
 				case 'radio':
 					defaults[name] = '';
 					break;
+				case 'discipline':
+					defaults[name] = '';
+					break;
 				case 'file':
 					defaults[name] = null;
 					break;

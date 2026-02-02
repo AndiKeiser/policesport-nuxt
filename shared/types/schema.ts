@@ -173,6 +173,14 @@ export interface BlockMember {
 	/** @required */
 	collection: 'members';
 	limit?: number | null;
+	members_list?: BlockMembersMember[] | string[];
+}
+
+export interface BlockMembersMember {
+	/** @primaryKey */
+	id: number;
+	block_members_id?: BlockMember | string | null;
+	members_id?: Member | string | null;
 }
 
 export interface BlockPost {
@@ -260,6 +268,8 @@ export interface Discipline {
 	user_updated?: DirectusUser | string | null;
 	date_updated?: string | null;
 	title?: string | null;
+	show_in_navigation?: boolean | null;
+	image?: DirectusFile | string | null;
 	translations?: DisciplinesTranslation[] | null;
 }
 
@@ -270,6 +280,8 @@ export interface DisciplinesTranslation {
 	languages_code?: Language | string | null;
 	title?: string | null;
 	rules?: DirectusFile | string | null;
+	description?: string | null;
+	slug?: string | null;
 }
 
 export interface Event {
@@ -285,8 +297,6 @@ export interface Event {
 	image?: DirectusFile | string | null;
 	seo?: ExtensionSeoMetadata | null;
 	location?: string | null;
-	title?: string | null;
-	content?: string | null;
 	translations?: EventsTranslation[] | null;
 	images?: DirectusFile[] | string[] | null;
 	disciplines?: EventsDiscipline[] | string[];
@@ -314,6 +324,7 @@ export interface EventsTranslation {
 	title?: string | null;
 	slug?: string | null;
 	content?: string | null;
+	link?: string | null;
 }
 
 export interface FormField {
@@ -513,6 +524,7 @@ export interface NavigationItem {
 	user_created?: DirectusUser | string | null;
 	date_updated?: string | null;
 	user_updated?: DirectusUser | string | null;
+	show_disciplines?: boolean | null;
 	/** @description Add child menu items within the group. */
 	children?: NavigationItem[] | string[];
 }
@@ -1088,6 +1100,7 @@ export interface Schema {
 	block_gallery_items: BlockGalleryItem[];
 	block_hero: BlockHero[];
 	block_members: BlockMember[];
+	block_members_members: BlockMembersMember[];
 	block_posts: BlockPost[];
 	block_pricing: BlockPricing[];
 	block_pricing_cards: BlockPricingCard[];
@@ -1156,6 +1169,7 @@ export enum CollectionNames {
 	block_gallery_items = 'block_gallery_items',
 	block_hero = 'block_hero',
 	block_members = 'block_members',
+	block_members_members = 'block_members_members',
 	block_posts = 'block_posts',
 	block_pricing = 'block_pricing',
 	block_pricing_cards = 'block_pricing_cards',

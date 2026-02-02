@@ -122,7 +122,7 @@ const formatDate = (dateString: string | null | undefined) => {
 				<NuxtLink
 					v-for="post in posts"
 					:key="post.id"
-					:to="`/blog/${post.slug}`"
+					:to="`/blog/${getTranslation(post, 'slug')}`"
 					class="group block overflow-hidden rounded-lg"
 				>
 					<div class="relative w-full h-[256px] overflow-hidden rounded-lg">
@@ -136,7 +136,7 @@ const formatDate = (dateString: string | null | undefined) => {
 						/>
 					</div>
 					<div class="p-4">
-						<h3 class="text-xl group-hover:text-accent font-heading transition-colors duration-300">
+						<h3 class="text-xl group-hover:text-accent font-heading transition-colors font-bold duration-300">
 							{{ getTranslation(post, 'title') }}
 						</h3>
 						<p class="text-sm text-muted-foreground mt-2">

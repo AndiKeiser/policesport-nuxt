@@ -3,6 +3,7 @@ import tailwindcssAnimate from 'tailwindcss-animate';
 import typography from '@tailwindcss/typography';
 
 const config: Config = {
+	darkMode: 'class' as any,
 	content: [
 		'./components/**/*.{vue,js,ts}',
 		'./layouts/**/*.vue',

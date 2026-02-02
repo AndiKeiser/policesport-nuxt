@@ -24,7 +24,7 @@ const { setAttr } = useVisualEditing();
 <template>
 	<div
 		:class="[
-			'mx-auto w-[800px]',
+			'mx-auto w-[800px] max-w-full',
 			{
 				'text-center': data.alignment === 'center',
 				'text-right': data.alignment === 'right',

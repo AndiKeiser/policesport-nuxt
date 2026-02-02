@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
 	try {
-		const [globals, headerNavigation, footerNavigation] = await Promise.all([
+		const [globals, headerNavigation, footerNavigation, disciplines] = await Promise.all([
 			directusServer.request(
 				readSingleton('globals', {
 					fields: ['title', 'description', 'logo', 'logo_dark_mode', 'social_links', 'accent_color', 'favicon'],
@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
 								'title',
 								'url',
 								'type',
+								'show_disciplines',
 								{
 									page: ['id', 'permalink'],
 									post: ['id', 'slug'],
@@ -71,9 +72,26 @@ export default defineEventHandler(async (event) => {
 					},
 				}),
 			),
+
+			// Fetch all disciplines with show_in_navigation = true
+			directusServer.request(
+				readItems('disciplines', {
+					fields: [
+						'id',
+						{
+							translations: ['id', 'languages_code', 'title', 'slug'],
+						},
+					],
+					filter: {
+						status: { _eq: 'published' },
+						show_in_navigation: { _eq: true },
+					},
+					sort: ['sort'],
+				}),
+			),
 		]);
 
-		return { globals, headerNavigation, footerNavigation };
+		return { globals, headerNavigation, footerNavigation, disciplines };
 	} catch {
 		throw createError({ statusCode: 500, statusMessage: 'Internal Server Error' });
 	}

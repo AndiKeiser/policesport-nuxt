@@ -21,7 +21,6 @@ export default defineNuxtConfig({
 		'@nuxtjs/tailwindcss',
 		'shadcn-nuxt',
 		'@nuxt/icon',
-		'@nuxtjs/color-mode',
 		'@nuxtjs/seo',
 		'@nuxtjs/i18n',
 	],
@@ -75,11 +74,6 @@ export default defineNuxtConfig({
 				provider: 'ipx',
 			},
 		},
-	},
-
-	colorMode: {
-		preference: 'light',
-		fallback: 'light'
 	},
 
 	site: {

@@ -15,6 +15,11 @@ export default defineEventHandler(async (event) => {
 			withToken(
 				token as string,
 				readItems('events', {
+					filter: {
+						translations: {
+							slug: { _eq: slug },
+						},
+					},
 					limit: 1,
 					fields: [
 						'id',
@@ -22,8 +27,10 @@ export default defineEventHandler(async (event) => {
 						'end_date',
 						'status',
 						'location',
-						'images.*',
-						'translations.*',
+						'images',
+						{
+							translations: ['id', 'languages_code', 'title', 'content', 'slug', 'link'],
+						},
 						{
 							image: ['id', 'focal_point_x', 'focal_point_y', 'width', 'height'],
 						},
@@ -38,7 +45,22 @@ export default defineEventHandler(async (event) => {
 			withToken(
 				token as string,
 				readItems('events', {
-					fields: ['id', 'start_date', 'image', 'end_date'],
+					filter: {
+						translations: {
+							slug: { _neq: slug }
+						}
+					},
+					fields: [
+						'id',
+						'start_date',
+						'end_date',
+						{
+							translations: ['id', 'languages_code', 'title', 'slug'],
+						},
+						{
+							image: ['id'],
+						},
+					],
 					limit: 2,
 				}),
 			),
@@ -47,10 +69,10 @@ export default defineEventHandler(async (event) => {
 		const [events, relatedEvents] = await Promise.all([eventsPromise, relatedEventsPromise]);
 
 		if (!events.length) {
-			throw createError({ statusCode: 404, message: `Post not found: ${slug}` });
+			throw createError({ statusCode: 404, message: `Event not found: ${slug}` });
 		}
 
-		return { post: events[0], relatedPosts: relatedEvents };
+		return { event: events[0], relatedEvents: relatedEvents };
 	} catch (error) {
 		throw createError({ statusCode: 500, message: `Failed to fetch event: ${slug}`, data: error });
 	}

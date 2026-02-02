@@ -90,7 +90,40 @@ export default defineEventHandler(async (event) => {
 										],
 										block_posts: ['id', 'tagline', 'headline', 'collection', 'limit', 'show_pagination'],
 										block_events: ['id', 'tagline', 'headline', 'collection', 'limit'],
-										block_members: ['id', 'tagline', 'headline', 'collection', 'limit'],
+										block_members: [
+											'id',
+											'tagline',
+											'headline',
+											'collection',
+											'limit',
+											{
+												members_list: [
+													'id',
+													{
+														members_id: [
+															'id',
+															'firstname',
+															'lastname',
+															'police_station',
+															'title',
+															'email',
+															'phone',
+															{
+																disciplines: [
+																'id',
+																{
+																	disciplines_id: ['id', 'title'],
+																},
+															]
+															},
+															{
+																portrait: ['id', 'focal_point_x', 'focal_point_y', 'width', 'height'],
+															},
+														],
+													},
+												],
+											},
+										],
 										block_disciplines: ['id', 'tagline', 'headline', 'collection', 'limit'],
 										block_video: ['id', 'video', 'title'],
 										block_form: [
@@ -187,7 +220,7 @@ export default defineEventHandler(async (event) => {
 					const blockMember = block.item as BlockMember;
 					const limit = blockMember.limit ? Number(blockMember.limit) : 6;
 
-					const members: Member[] = await directusServer.request(
+					const members = await directusServer.request(
 						readItems('members', {
 							fields: [
 								'id',
@@ -202,7 +235,12 @@ export default defineEventHandler(async (event) => {
 								'discipline',
 								'city',
 								{
-									discipline: ['title'],
+									disciplines: [
+										'id',
+										{
+											disciplines_id: ['title'],
+										},
+									],
 								},
 								{
 									portrait: ['id', 'focal_point_x', 'focal_point_y', 'width', 'height'],
@@ -214,7 +252,7 @@ export default defineEventHandler(async (event) => {
 						}),
 					);
 
-					(block.item as BlockMember & { members: Member[] }).members = members;
+					(block.item as BlockMember & { members: any[] }).members = members as any;
 				}
 
 				if (
@@ -227,18 +265,27 @@ export default defineEventHandler(async (event) => {
 				
 					const blockDiscipline = block.item as BlockDiscipline;
 
-					const disciplines: Discipline[] = await directusServer.request(
+					const disciplines = await directusServer.request(
 						readItems('disciplines', {
 							fields: [
 								'id',
-								'title',	
+								'title',
+								{
+									image: ['id', 'focal_point_x', 'focal_point_y', 'width', 'height'],
+								},
+								{
+									translations: ['id', 'languages_code', 'title', 'slug'],
+								},
 							],
-							filter: { status: { _eq: 'published' } },
+							filter: {
+								status: { _eq: 'published' },
+								show_in_navigation: { _eq: true },
+							},
 							sort: ['-date_created'],
 						}),
 					);
 
-					(block.item as BlockDiscipline & { disciplines: Discipline[] }).disciplines = disciplines;
+					(block.item as BlockDiscipline & { disciplines: any[] }).disciplines = disciplines as any;
 				}
 			}
 		}

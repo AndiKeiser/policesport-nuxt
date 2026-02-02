@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import type { Post, DirectusUser } from '#shared/types/schema';
 import { useDirectusTranslation } from '~/composables/useDirectusTranslation';
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 const route = useRoute();
 const { enabled, state } = useLivePreview();
@@ -28,6 +33,8 @@ const { data, error, refresh } = await useFetch<{
 	},
 });
 
+console.log(data);
+
 if (!data.value || error.value) {
 	throw createError({ statusCode: 404, statusMessage: 'Post not found', fatal: true });
 }
@@ -36,7 +43,13 @@ const post = computed(() => data.value?.post);
 const relatedPosts = computed(() => data.value?.relatedPosts);
 // const author = computed(() => post.value?.author as Partial<DirectusUser>);
 
-console.log(post);
+const swiperModules = [Navigation, Pagination];
+
+const galleryImages = computed(() => {
+	console.log(post.value.gallery);
+	if (!post.value?.gallery || !Array.isArray(post.value.gallery)) return [];
+	return post.value.gallery.filter((item: any) => item && typeof item === 'object');
+});
 
 onMounted(() => {
 	if (!isVisualEditingEnabled.value) return;
@@ -132,6 +145,32 @@ useSeoMeta({
 						</div>
 					</div>
 				</aside>
+			</div>
+
+			<!-- Gallery Section -->
+			<div v-if="galleryImages.length" class="mt-12">
+				<h2 class="text-2xl font-heading font-semibold mb-6">Galerie</h2>
+				<Swiper
+					:modules="swiperModules"
+					:slides-per-view="1"
+					:space-between="30"
+					:navigation="true"
+					:pagination="{ clickable: true }"
+					class="rounded-lg"
+				>
+					<SwiperSlide v-for="(item, index) in galleryImages" :key="index">
+						<div class="relative w-full aspect-video overflow-hidden rounded-lg bg-muted">
+							<DirectusImage
+								:uuid="typeof item === 'string' ? item : (typeof (item as any).directus_files_id === 'string' ? (item as any).directus_files_id : (item as any).directus_files_id?.id)"
+								:file="typeof (item as any).directus_files_id === 'object' ? (item as any).directus_files_id : undefined"
+								:alt="`Gallery image ${index + 1}`"
+								class="w-full h-full object-cover"
+								sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
+								fill
+							/>
+						</div>
+					</SwiperSlide>
+				</Swiper>
 			</div>
 		</Container>
 	</div>

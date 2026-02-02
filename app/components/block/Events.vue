@@ -74,18 +74,6 @@ const formatDate = (dateString: string | null | undefined) => {
 
 <template>
 	<div>
-		<!-- <Tagline
-			v-if="data.tagline"
-			:tagline="data.tagline"
-			:data-directus="
-				setAttr({
-					collection: 'block_events',
-					item: data.id,
-					fields: 'tagline',
-					mode: 'popover',
-				})
-			"
-		/> -->
 		<Headline
 			v-if="data.headline"
 			:headline="data.headline"
@@ -107,6 +95,7 @@ const formatDate = (dateString: string | null | undefined) => {
 				<NuxtLink
 					v-for="event in events"
 					:key="event.id"
+					:to="`/events/${getTranslation(event, 'slug')}`"
 					class="group block overflow-hidden rounded-lg"
 				>
 					<div class="relative w-full h-[256px] overflow-hidden rounded-lg">
@@ -119,7 +108,7 @@ const formatDate = (dateString: string | null | undefined) => {
 						/>
 					</div>
 					<div class="p-4">
-						<h3 class="text-xl group-hover:text-accent font-heading transition-colors duration-300">
+						<h3 class="text-xl group-hover:text-accent font-bold font-heading transition-colors duration-300">
 							{{ getTranslation(event, 'title') }}
 							
 						</h3>

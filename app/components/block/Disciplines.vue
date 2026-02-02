@@ -18,11 +18,7 @@ const { getTranslation } = useDirectusTranslation();
 
 const { setAttr } = useVisualEditing();
 
-const getFullName = (discipline: Discipline) => {
-	console.log(discipline);
-	const parts = [discipline.title].filter(Boolean);
-	return parts.join(' ') || 'Discipline';
-};
+
 </script>
 
 <template>
@@ -46,50 +42,44 @@ const getFullName = (discipline: Discipline) => {
 		/>
 
 		<div
-			class="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+			class="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8"
 			:data-directus="
 				setAttr({
 					collection: 'block_disciplines',
 					item: data.id,
-					fields: 'disciplines',
-					mode: 'modal',
+					fields: ['collection', 'limit'],
+					mode: 'popover',
 				})
 			"
 		>
 			<template v-if="data.disciplines?.length">
-				<div
+				<NuxtLink
 					v-for="discipline in data.disciplines"
 					:key="discipline.id"
-					class="group flex flex-col items-center text-center"
+					:to="`/disciplines/${getTranslation(discipline, 'slug')}`"
+					class="group block overflow-hidden rounded-lg"
 				>
-					<!-- <div class="relative w-full aspect-square overflow-hidden rounded-lg mb-4">
+
+					
+					<div class="relative w-full h-[256px] overflow-hidden rounded-lg">
 						<DirectusImage
-							v-if="member.portrait"
-							:uuid="typeof member.portrait === 'string' ? member.portrait : member.portrait?.id"
-							:file="typeof member.portrait === 'object' ? member.portrait : undefined"
-							:alt="getFullName(member)"
+							v-if="discipline.image"
+							:uuid="typeof discipline.image === 'string' ? discipline.image : discipline.image?.id"
+							:file="typeof discipline.image === 'object' ? discipline.image : undefined"
+							:alt="discipline.title"
 							class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
 							sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
 						/>
-						<div
-							v-else
-							class="w-full h-full bg-muted flex items-center justify-center"
-						>
-							<span class="text-muted-foreground text-4xl">{{ member.firstname?.charAt(0) || 'M' }}</span>
-						</div>
-					</div> -->
-					<div class="space-y-1">
+					</div>
+					
+					<div class="p-4">
 						<h3 class="text-lg font-heading font-semibold">
 							{{ discipline.title }}
 						</h3>
-						
-						
-						<!-- <p v-if="member.email" class="text-sm text-accent hover:underline">
-							<a :href="`mailto:${member.email}`">{{ member.email }}</a>
-						</p> -->
-			
 					</div>
-				</div>
+					
+				
+				</NuxtLink>
 			</template>
 			<p v-else class="col-span-full text-center text-muted-foreground">No disciplines available.</p>
 		</div>
