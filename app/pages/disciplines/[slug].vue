@@ -3,6 +3,7 @@ import type { Discipline, Post, Member } from '#shared/types/schema';
 import { useDirectusTranslation } from '~/composables/useDirectusTranslation';
 
 const route = useRoute();
+const { t, locale } = useI18n();
 const { enabled, state } = useLivePreview();
 const { isVisualEditingEnabled, apply, setAttr } = useVisualEditing();
 const eventUrl = useRequestURL();
@@ -80,7 +81,7 @@ onMounted(() => {
 
 			<div class="grid grid-cols-1 gap-12">
 				<main class="text-left">
-					<div v-if="getTranslation(discipline as any, 'description')" class="mb-8">
+					<!-- <div v-if="getTranslation(discipline as any, 'description')" class="mb-8">
 						<Text
 							:content="getTranslation(discipline as any, 'description') || ''"
 							:data-directus="
@@ -92,27 +93,11 @@ onMounted(() => {
 								})
 							"
 						/>
-					</div>
-
-					<div v-if="getTranslation(discipline as any, 'rules')">
-						<h2 class="text-2xl font-heading font-semibold mb-4">Regeln</h2>
-						<Text
-							:content="getTranslation(discipline as any, 'rules') || ''"
-							:data-directus="
-								setAttr({
-									collection: 'disciplines',
-									item: discipline.id,
-									fields: ['rules'],
-									mode: 'drawer',
-								})
-							"
-						/>
-					</div>
+					</div> -->
 
 					
-
 					<div v-if="relatedPosts.length" class="mt-12">
-						<h2 class="text-2xl font-heading font-semibold mb-6">Neuigkeiten</h2>
+						<h2 class="text-2xl font-heading font-semibold mb-6">{{ t('disciplines.news') }}</h2>
 						<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 							<NuxtLink
 								v-for="post in relatedPosts"
@@ -137,15 +122,30 @@ onMounted(() => {
 										{{ getTranslation(post as any, 'description') }}
 									</p>
 									<p v-if="post.published_at" class="text-xs text-muted-foreground mt-2">
-										{{ new Date(post.published_at).toLocaleDateString('de-DE') }}
+										{{ new Date(post.published_at).toLocaleDateString(locale) }}
 									</p>
 								</div>
 							</NuxtLink>
 						</div>
 					</div>
 
+					<!-- <div v-if="getTranslation(discipline as any, 'rules')"  class="mt-12">
+						<h2 class="text-2xl font-heading font-semibold mb-4">{{ t('disciplines.rules') }}</h2>
+						<Text
+							:content="getTranslation(discipline as any, 'rules') || ''"
+							:data-directus="
+								setAttr({
+									collection: 'disciplines',
+									item: discipline.id,
+									fields: ['rules'],
+									mode: 'drawer',
+								})
+							"
+						/>
+					</div> -->
+
 					<div v-if="relatedMembers.length" class="mt-12">
-						<h2 class="text-2xl font-heading font-semibold mb-6">Resortleiter</h2>
+						<h2 class="text-2xl font-heading font-semibold mb-6">{{ t('disciplines.resortLeader') }}</h2>
 						<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 							<div
 								v-for="member in relatedMembers"
@@ -189,5 +189,5 @@ onMounted(() => {
 			</div>
 		</Container>
 	</div>
-	<div v-else class="text-center text-xl mt-[20%]">404 - Discipline Not Found</div>
+	<div v-else class="text-center text-xl mt-[20%]">{{ t('disciplines.notFound') }}</div>
 </template>

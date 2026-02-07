@@ -18,6 +18,7 @@ const props = defineProps<EventsProps>();
 
 const route = useRoute();
 const router = useRouter();
+const { t, locale } = useI18n();
 const { getTranslation } = useDirectusTranslation();
 
 const perPage = props.data.limit || 6;
@@ -64,7 +65,7 @@ const { setAttr } = useVisualEditing();
 const formatDate = (dateString: string | null | undefined) => {
 	if (!dateString) return '';
 	const date = new Date(dateString);
-	return new Intl.DateTimeFormat('de-DE', {
+	return new Intl.DateTimeFormat(locale.value, {
 		year: 'numeric',
 		month: 'long',
 		day: 'numeric',
@@ -113,12 +114,12 @@ const formatDate = (dateString: string | null | undefined) => {
 							
 						</h3>
 						<p class="text-sm text-muted-foreground mt-2">
-							{{ formatDate(event.start_date) }} bis {{ formatDate(event.end_date) }}
+							{{ t('events.dateRange', { start: formatDate(event.start_date), end: formatDate(event.end_date) }) }}
 						</p>
 					</div>
 				</NuxtLink>
 			</template>
-			<p v-else class="text-center text-gray-500">No events available.</p>
+			<p v-else class="text-center text-gray-500">{{ t('events.noEvents') }}</p>
 		</div>
 		<ClientOnly>
 			<Pagination v-if="totalPages > 1 && events?.length" class="mt-6">

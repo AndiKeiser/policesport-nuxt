@@ -61,6 +61,7 @@
 		"clsx": "^2.1.1",
 		"lucide-vue-next": "^0.487.0",
 		"nuxt": "^3.16.2",
+		"nuxt-easy-lightbox": "1.1.0",
 		"nuxt-security": "^2.2.0",
 		"radix-vue": "^1.9.17",
 		"shadcn-nuxt": "2.0.0",

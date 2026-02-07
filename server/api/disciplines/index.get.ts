@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const querySchema = z.object({
-	limit: z.coerce.number().min(1).max(100).default(6),
+	limit: z.coerce.number().min(1).max(100).default(100),
 	page: z.coerce.number().min(1).default(1),
 	slug: z.string().optional(),
 });

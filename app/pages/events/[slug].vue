@@ -7,7 +7,7 @@ const { enabled, state } = useLivePreview();
 const { isVisualEditingEnabled, apply, setAttr } = useVisualEditing();
 const eventUrl = useRequestURL();
 const { getTranslation } = useDirectusTranslation();
-
+const { t, locale } = useI18n();
 const slug = route.params.slug as string;
 const wrapperRef = ref<HTMLElement | null>(null);
 
@@ -45,7 +45,7 @@ onMounted(() => {
 const formatStartDate = (dateString: string | null | undefined) => {
 	if (!dateString) return '';
 	const date = new Date(dateString);
-	return new Intl.DateTimeFormat('de-DE', {
+	return new Intl.DateTimeFormat(locale.value, {
 		day: 'numeric',
 	}).format(date);
 };
@@ -53,7 +53,7 @@ const formatStartDate = (dateString: string | null | undefined) => {
 const formatDate = (dateString: string | null | undefined) => {
 	if (!dateString) return '';
 	const date = new Date(dateString);
-	return new Intl.DateTimeFormat('de-DE', {
+	return new Intl.DateTimeFormat(locale.value, {
 		year: 'numeric',
 		month: 'long',
 		day: 'numeric',
@@ -102,7 +102,11 @@ useSeoMeta({
 			<div class="grid grid-cols-1 lg:grid-cols-[minmax(0,_2fr)_400px] gap-12">
 				<main class="text-left">
 					<div class="text-muted-foreground mb-4">
-						<span>{{ formatStartDate(event.start_date) }}. - {{ formatDate(event.end_date) }}</span>
+						
+						{{ t('events.dateRange', { start: formatStartDate(event.start_date), end: formatDate(event.end_date) }) }}
+						
+
+						<!-- <span>{{ formatStartDate(event.start_date) }}. - {{ formatDate(event.end_date) }}</span> -->
 						<span v-if="event.location"> / {{ event.location }}</span>
 					</div>
 
@@ -119,43 +123,6 @@ useSeoMeta({
 					/>
 				</main>
 
-				<aside class="space-y-6 p-6 rounded-lg max-w-[496px] h-fit bg-background-muted">
-<!-- 			
-					<p
-						v-if="event.description"
-						:data-directus="setAttr({ collection: 'posts', item: event.id, fields: 'description', mode: 'popover' })"
-					>
-						{{ event.description }}
-					</p> -->
-
-					<!-- <div class="flex justify-start">
-						<ShareDialog :post-url="postUrl.toString()" :post-title="event.title" />
-					</div> -->
-					
-					<div>
-						<Separator class="h-[1px] bg-gray-300 my-4" />
-						<h3 class="font-bold mb-4">Related Events</h3>
-						<div class="space-y-4">
-							<!-- <NuxtLink
-								v-for="relatedPost in relatedPosts"
-								:key="relatedPost.id"
-								:to="`/blog/${relatedPost.slug}`"
-								class="flex items-center space-x-4 hover:text-accent group"
-							>
-								<div v-if="relatedPost.image" class="relative shrink-0 w-[150px] h-[100px] overflow-hidden rounded-lg">
-									<DirectusImage
-										:uuid="relatedPost.image as string"
-										:alt="relatedPost.title || 'related post image'"
-										class="object-cover transition-transform duration-300 group-hover:scale-110"
-										fill
-										sizes="(max-width: 768px) 100px, (max-width: 1024px) 150px, 150px"
-									/>
-								</div>
-								<span class="font-heading">{{ relatedPost.title }}</span>
-							</NuxtLink> -->
-						</div>
-					</div>
-				</aside>
 			</div>
 		</Container>
 	</div>

@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
 						},
 					],
 					sort: ['-published_at'],
-					limit: 6,
+					limit: 100,
 				}),
 			),
 		);

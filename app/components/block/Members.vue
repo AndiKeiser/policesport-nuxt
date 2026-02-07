@@ -79,7 +79,7 @@ const displayMembers = computed(() => {
 					:key="member.id"
 					class="group flex flex-col items-center text-center"
 				>
-					<div class="relative w-full aspect-[4/3] overflow-hidden rounded-lg mb-4">
+					<div class="relative w-full aspect-[3/4] overflow-hidden rounded-lg mb-4">
 						<DirectusImage
 							v-if="member.portrait"
 							:uuid="typeof member.portrait === 'string' ? member.portrait : member.portrait?.id"

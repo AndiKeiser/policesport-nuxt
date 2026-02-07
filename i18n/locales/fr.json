@@ -1,0 +1,12 @@
+{
+	"events": {
+		"dateRange": "{start} au {end}",
+		"noEvents": "Aucun événement disponible."
+	},
+	"disciplines": {
+		"news": "Actualités",
+		"rules": "Règles",
+		"resortLeader": "Responsable",
+		"notFound": "404 - Discipline non trouvée"
+	}
+}

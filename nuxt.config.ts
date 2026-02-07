@@ -23,6 +23,7 @@ export default defineNuxtConfig({
 		'@nuxt/icon',
 		'@nuxtjs/seo',
 		'@nuxtjs/i18n',
+		'nuxt-easy-lightbox',
 	],
 
 	css: ['~/assets/css/tailwind.css'],
@@ -38,13 +39,13 @@ export default defineNuxtConfig({
 
 	shadcn: {
 		/**
-			* Prefix for all the imported component
-			*/
+						* Prefix for all the imported component
+						*/
 		prefix: '',
 		/**
-			* Directory that the component lives in.
-			* @default "./components/ui"
-			*/
+						* Directory that the component lives in.
+						* @default "./components/ui"
+						*/
 		componentDir: './app/components/ui',
 	},
 
@@ -93,11 +94,13 @@ export default defineNuxtConfig({
 				code: 'de',
 				name: 'Deutsch',
 				iso: 'de-DE',
+				file: 'de.json',
 			},
 			{
 				code: 'fr',
 				name: 'Français',
 				iso: 'fr-FR',
+				file: 'fr.json',
 			},
 		],
 		defaultLocale: 'de',

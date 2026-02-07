@@ -19,7 +19,7 @@ const props = defineProps<PostsProps>();
 const route = useRoute();
 const router = useRouter();
 const { getTranslation } = useDirectusTranslation();
-
+const { t, locale } = useI18n();
 const perPage = props.data.limit || 6;
 const currentPage = ref(Number(route.query.page) || 1);
 const visiblePages = 5;
@@ -79,7 +79,7 @@ const { setAttr } = useVisualEditing();
 const formatDate = (dateString: string | null | undefined) => {
 	if (!dateString) return '';
 	const date = new Date(dateString);
-	return new Intl.DateTimeFormat('de-DE', {
+	return new Intl.DateTimeFormat(locale.value, {
 		year: 'numeric',
 		month: 'long',
 		day: 'numeric',

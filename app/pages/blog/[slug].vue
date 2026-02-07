@@ -46,10 +46,31 @@ const relatedPosts = computed(() => data.value?.relatedPosts);
 const swiperModules = [Navigation, Pagination];
 
 const galleryImages = computed(() => {
-	console.log(post.value.gallery);
 	if (!post.value?.gallery || !Array.isArray(post.value.gallery)) return [];
 	return post.value.gallery.filter((item: any) => item && typeof item === 'object');
 });
+
+// Lightbox state
+const lightboxVisible = ref(false);
+const lightboxIndex = ref(0);
+
+const lightboxImages = computed(() => {
+	return galleryImages.value.map((item: any) => {
+		const fileId = typeof item === 'string'
+			? item
+			: (typeof item.directus_files_id === 'string'
+				? item.directus_files_id
+				: item.directus_files_id?.id);
+		return `${directusUrl}/assets/${fileId}`;
+	});
+});
+
+console.log(lightboxImages);
+
+const openLightbox = (index: number) => {
+	lightboxIndex.value = index;
+	lightboxVisible.value = true;
+};
 
 onMounted(() => {
 	if (!isVisualEditingEnabled.value) return;
@@ -96,6 +117,15 @@ useSeoMeta({
 				:data-directus="setAttr({ collection: 'posts', item: post.id, fields: ['title', 'slug'], mode: 'popover' })"
 			/>
 
+			<p
+				v-if="getTranslation(post, 'description')"
+				class="text-2xl"
+				:data-directus="setAttr({ collection: 'posts', item: post.id, fields: 'description', mode: 'popover' })"
+			>
+				{{ getTranslation(post, 'description') }}
+			</p>
+
+
 			<Separator class="h-[1px] bg-gray-300 my-8" />
 
 			<div class="grid grid-cols-1 lg:grid-cols-[minmax(0,_2fr)_400px] gap-12">
@@ -113,38 +143,7 @@ useSeoMeta({
 					/>
 				</main>
 
-				<aside class="space-y-6 p-6 rounded-lg max-w-[496px] h-fit bg-background-muted">
-					<p
-						v-if="getTranslation(post, 'description')"
-						:data-directus="setAttr({ collection: 'posts', item: post.id, fields: 'description', mode: 'popover' })"
-					>
-						{{ getTranslation(post, 'description') }}
-					</p>
-
-					<div>
-						<!-- <Separator class="h-[1px] bg-gray-300 my-4" /> -->
-						<h3 class="font-bold mb-4">Verwandte Beiträge</h3>
-						<div class="space-y-4">
-							<NuxtLink
-								v-for="relatedPost in relatedPosts"
-								:key="relatedPost.id"
-								:to="`/blog/${relatedPost.slug}`"
-								class="flex items-center space-x-4 hover:text-accent group"
-							>
-								<div v-if="relatedPost.image" class="relative shrink-0 w-[150px] h-[100px] overflow-hidden rounded-lg">
-									<DirectusImage
-										:uuid="relatedPost.image as string"
-										:alt="getTranslation(relatedPost, 'title') || 'related post image'"
-										class="object-cover transition-transform duration-300 group-hover:scale-110"
-										fill
-										sizes="(max-width: 768px) 100px, (max-width: 1024px) 150px, 150px"
-									/>
-								</div>
-								<span class="font-heading">{{ getTranslation(relatedPost, 'title') }}</span>
-							</NuxtLink>
-						</div>
-					</div>
-				</aside>
+				
 			</div>
 
 			<!-- Gallery Section -->
@@ -156,21 +155,34 @@ useSeoMeta({
 					:space-between="30"
 					:navigation="true"
 					:pagination="{ clickable: true }"
-					class="rounded-lg"
+					class="rounded-lg bg-black"
 				>
 					<SwiperSlide v-for="(item, index) in galleryImages" :key="index">
-						<div class="relative w-full aspect-video overflow-hidden rounded-lg bg-muted">
+						<div
+							class="relative w-full aspect-video overflow-hidden rounded-lg bg-muted cursor-pointer"
+							@click="openLightbox(index)"
+						>
 							<DirectusImage
 								:uuid="typeof item === 'string' ? item : (typeof (item as any).directus_files_id === 'string' ? (item as any).directus_files_id : (item as any).directus_files_id?.id)"
 								:file="typeof (item as any).directus_files_id === 'object' ? (item as any).directus_files_id : undefined"
 								:alt="`Gallery image ${index + 1}`"
-								class="w-full h-full object-cover"
+								class="w-full h-full object-contain"
 								sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
 								fill
 							/>
 						</div>
 					</SwiperSlide>
 				</Swiper>
+				<VueEasyLightbox
+					:visible="lightboxVisible"
+					:imgs="lightboxImages"
+					:index="lightboxIndex"
+					:rotate-disabled="true"
+					:move-disabled="true"
+					:zoom-disabled="true"
+					:resize-disabled="true"
+					@hide="lightboxVisible = false"
+				/>
 			</div>
 		</Container>
 	</div>
